@@ -6,11 +6,14 @@
   <title>Petualangan Pokemon</title>
 
   <!-- Fonts & Styles -->
+   <link rel="icon" type="image/png" href="logo_pokeball.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
 
   <style>
+
+    
     html, body {
       margin: 0;
       padding: 0;
@@ -32,6 +35,7 @@
 
     body {
       background-color: black;
+      font-size: 12px;
     }
 
     button {
@@ -49,8 +53,8 @@
       position: absolute;
       bottom: 40px;
       right: 30px;
-      width: 160px;
-      height: 160px;
+      width: 120px;
+      height: 120px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(3, 1fr);
@@ -229,28 +233,6 @@
 
   <!-- 🧠 Virtual D-pad Logic -->
   <script>
-    let lastKey = '';
-    const keys = {
-      w: { pressed: false },
-      a: { pressed: false },
-      s: { pressed: false },
-      d: { pressed: false }
-    };
-
-    // Movement buttons
-    document.querySelectorAll('.dpad-button').forEach((button) => {
-      button.addEventListener('touchstart', () => {
-        const key = button.dataset.key;
-        keys[key].pressed = true;
-        lastKey = key;
-      });
-
-      button.addEventListener('touchend', () => {
-        const key = button.dataset.key;
-        keys[key].pressed = false;
-      });
-    });
-
     function handleInteraction() {
       if (player.isInteracting) {
         player.interactionAsset.dialogueIndex++;
