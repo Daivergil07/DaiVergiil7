@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Petualangan Pokemon</title>
+
+  <!-- Fonts & Styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+    }
+
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    * {
+      font-family: 'Press Start 2P', cursive;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: black;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #ddd;
+    }
+
+    /* D-pad grid style */
+    #controls {
+      position: absolute;
+      bottom: 40px;
+      right: 30px;
+      width: 160px;
+      height: 160px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 5px;
+      z-index: 20;
+    }
+
+    #controls button {
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: none;
+      font-size: 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    #controls button:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    #controls .empty {
+      pointer-events: none;
+      background: transparent;
+    }
+
+    #userInterface {
+      display: none;
+    }
+
+    #enemyHealthBar, #enemyManaBar, #playerHealthBar, #playerManaBar {
+      height: 5px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .infoBox {
+      background-color: white;
+      width: 250px;
+      position: absolute;
+      border: 4px black solid;
+      padding: 12px;
+    }
+
+    #enemyInfoBox {
+      top: 50px;
+      left: 50px;
+    }
+
+    #playerInfoBox {
+      top: 330px;
+      right: 50px;
+    }
+
+    #dialogueBox {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: white;
+      padding: 12px;
+      display: none;
+      cursor: pointer;
+    }
+
+    #attacksBox {
+      width: 66.66%;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .battleOptions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 33.33%;
+      border-left: 4px black solid;
+    }
+
+    /* Interact Button Style */
+    #interactButton {
+      position: absolute;
+      bottom: 220px;
+      right: 30px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: white;
+      font-size: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+  </style>
+</head>
+
+<body>
+  <div style="display: inline-block; position: relative">
+    <div id="overlappingDiv" style="background-color: black; position: absolute; top: 0; right: 0; bottom: 0; left: 0; opacity: 0; pointer-events: none; z-index: 10;"></div>
+
+    <canvas></canvas>
+
+    <div id="characterDialogueBox" style="background-color: white; height: 140px; position: absolute; bottom: 0; left: 0; right: 0; border-top: 4px black solid; display: none; padding: 12px;"></div>
+
+    <div id="userInterface">
+      <div id="enemyInfoBox" class="infoBox">
+        <h1 style="font-size: 16px">JAWAA HEJO</h1>
+        <div style="position: relative; margin-bottom: 10px">
+          <div style="height: 5px; background-color: #ccc; margin-top: 10px"></div>
+          <div id="enemyHealthBar" style="background-color: green;"></div>
+        </div>
+        <div style="position: relative">
+          <div style="height: 5px; background-color: #ccc;"></div>
+          <div id="enemyManaBar" style="background-color: blue;"></div>
+        </div>
+      </div>
+
+      <div id="playerInfoBox" class="infoBox">
+        <h1 style="font-size: 16px">JAWAA MERAH</h1>
+        <div style="position: relative; margin-bottom: 10px">
+          <div style="height: 5px; background-color: #ccc; margin-top: 10px"></div>
+          <div id="playerHealthBar" style="background-color: green;"></div>
+        </div>
+        <div style="position: relative">
+          <div style="height: 5px; background-color: #ccc;"></div>
+          <div id="playerManaBar" style="background-color: blue;"></div>
+        </div>
+      </div>
+
+      <div style="background-color: white; height: 140px; position: absolute; bottom: 0; left: 0; right: 0; border-top: 4px black solid; display: flex;">
+        <div id="dialogueBox" style="display: none; cursor: pointer;"></div>
+        <div id="attacksBox"></div>
+        <div class="battleOptions">
+          <h1 id="attackType" style="font-size: 16px">Attack Type</h1>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🎮 D-pad Virtual Controls -->
+    <div id="controls">
+      <div class="empty"></div>
+      <button id="up">↑</button>
+      <div class="empty"></div>
+      <button id="left">←</button>
+      <div class="empty"></div>
+      <button id="right">→</button>
+      <div class="empty"></div>
+      <button id="down">↓</button>
+      <div class="empty"></div>
+    </div>
+
+    <!-- Tombol Interaksi (🤝) -->
+    <button id="interactButton">🤝</button>
+  </div>
+
+
+  <!-- 🔊 Game Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js" crossorigin="anonymous"></script>
+  <script src="data/audio.js"></script>
+  <script src="data/battleZones.js"></script>
+  <script src="data/collisions.js"></script>
+  <script src="data/attacks.js"></script>
+  <script src="data/monsters.js"></script>
+  <script src="data/characters.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="classes.js"></script>
+  <script src="script.js"></script>
+  <script src="battleScene.js"></script>
+
+  <!-- 🧠 Virtual D-pad Logic -->
+  <script>
+    let lastKey = '';
+    const keys = {
+      w: { pressed: false },
+      a: { pressed: false },
+      s: { pressed: false },
+      d: { pressed: false }
+    };
+
+    // Movement buttons
+    document.querySelectorAll('.dpad-button').forEach((button) => {
+      button.addEventListener('touchstart', () => {
+        const key = button.dataset.key;
+        keys[key].pressed = true;
+        lastKey = key;
+      });
+
+      button.addEventListener('touchend', () => {
+        const key = button.dataset.key;
+        keys[key].pressed = false;
+      });
+    });
+
+    function handleInteraction() {
+      if (player.isInteracting) {
+        player.interactionAsset.dialogueIndex++;
+
+        const { dialogueIndex, dialogue } = player.interactionAsset;
+        if (dialogueIndex <= dialogue.length - 1) {
+          document.querySelector('#characterDialogueBox').innerHTML =
+            player.interactionAsset.dialogue[dialogueIndex];
+          return;
+        }
+
+        player.isInteracting = false;
+        player.interactionAsset.dialogueIndex = 0;
+        document.querySelector('#characterDialogueBox').style.display = 'none';
+      } else {
+        if (!player.interactionAsset) return;
+
+        const firstMessage = player.interactionAsset.dialogue[0];
+        document.querySelector('#characterDialogueBox').innerHTML = firstMessage;
+        document.querySelector('#characterDialogueBox').style.display = 'flex';
+        player.isInteracting = true;
+
+        if (typeof player.interactionAsset.onInteract === 'function') {
+          player.interactionAsset.onInteract();
+        }
+      }
+    }
+
+    // Interaksi via keyboard (spasi)
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        handleInteraction();
+      }
+    });
+
+    // Interaksi via tombol mobile (🤝)
+    document.getElementById('interactButton').addEventListener('click', handleInteraction);
+    document.getElementById('interactButton').addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      handleInteraction();
+    });
+  </script>
+</body>
+</html>
